@@ -25,10 +25,10 @@ int main(){
         }
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-            circle.move(sf::Vector2f(1.0f, 0.5f)); // Se mueve a la derecha
+            circle.move(sf::Vector2f(1.0f, 0.5f));
         }    
         if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
-            circle.move(sf::Vector2f(-0.5f, -1.0f)); // Se mueve a la derecha
+            circle.move(sf::Vector2f(-0.5f, -1.0f));
         }       
         rectangle.move(sf::Vector2f(0.0f, 0.0f));
 
