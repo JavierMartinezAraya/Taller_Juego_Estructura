@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "MainMenu.h"
 #include "Jugador.h"
+#include "Opciones.h"
 
 // Posibles estados del juego
 enum class GameState {
@@ -26,9 +27,9 @@ int main() {
 
     float width = window.getSize().x;
     float height = window.getSize().y;
-
-
+    // Se crea el menu principal y las opciones
     MainMenu mainMenu(width, height);
+    Opciones opciones(width, height);
 
     // Creacion del jugador
     Jugador jugador("resources/Ramos.png", sf::Vector2f(300.0f, 400.0f));
@@ -65,6 +66,11 @@ int main() {
                     mainMenu.resetSeleccion();
                 }
             }
+            // Manejo de las opciones
+            if (state == GameState::OPTIONS && event.type == sf::Event::KeyReleased) { 
+                if (event.key.code == sf::Keyboard::Right) opciones.aumentarVolumen();
+                if (event.key.code == sf::Keyboard::Left) opciones.disminuirVolumen(); 
+            }
         }
         // Se limpia la pantlla y el dibujo del fondo
         window.clear();
@@ -91,6 +97,7 @@ int main() {
             text.setFillColor(sf::Color::Cyan);
             text.setPosition(100, 160);
             window.draw(text);
+            opciones.draw(window); // Se dibuja el texto del volumen.
         }
         else if (state == GameState::ABOUT) {
             // Se dibuja la pantalla de "Acerca de"
