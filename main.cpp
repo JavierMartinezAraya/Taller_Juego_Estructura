@@ -1,45 +1,108 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "MainMenu.h"
+#include "Jugador.h"
 
-int main(){
+// Posibles estados del juego
+enum class GameState {
+    MENU,
+    PLAY,
+    OPTIONS,
+    ABOUT
+};
 
-        sf::RenderWindow window(sf::VideoMode({1920, 1080}), "Kight");
-    window.setFramerateLimit(144);
+int main() {
+    // Se crea la ventana principal del juego de tamaño 1920x1080
+    sf::RenderWindow window(sf::VideoMode({1920, 1080}), "Kight");
+    window.setFramerateLimit(90);
+
+    // Se carga la imagen de fondo que se vera en el menu principal de juego
+    sf::Texture texture;
+    if (!texture.loadFromFile("resources/Sala.png")) {
+        std::cout << "Error: no se pudo cargar la imagen Sala.png" << std::endl;
+        return 1;
+    }
+    sf::Sprite sprite(texture);
 
     float width = window.getSize().x;
     float height = window.getSize().y;
 
-    sf::CircleShape circle(100.f);
-    circle.setFillColor(sf::Color::Green);
-    sf::RectangleShape rectangle(sf::Vector2f(100.f, 50.f));
-    rectangle.setFillColor(sf::Color::Yellow);
-    rectangle.setOrigin(rectangle.getSize() / 2.0f);
-    rectangle.setPosition(sf::Vector2f(width / 2.0f, height / 2.0f));
 
-    while (window.isOpen())
-    {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-                window.close();            
+    MainMenu mainMenu(width, height);
+
+    // Creacion del jugador
+    Jugador jugador("resources/Ramos.png", sf::Vector2f(300.0f, 400.0f));
+
+    // Estado del juego
+    GameState state = GameState::MENU;
+
+    sf::Event event;
+    while (window.isOpen()) {
+        // Se procesa los eventos
+        while (window.pollEvent(event)) { 
+            if (event.type == sf::Event::Closed)
+                window.close();
+
+            // Opciones del menu principal
+            if (state == GameState::MENU && event.type == sf::Event::KeyReleased) {
+                if (event.key.code == sf::Keyboard::Up)
+                    mainMenu.MoveUp();
+                if (event.key.code == sf::Keyboard::Down)
+                    mainMenu.MoveDown();
+                if (event.key.code == sf::Keyboard::Return) {
+                    int x = mainMenu.MainMenuPressed();
+                    if (x == 0) state = GameState::PLAY;     // Jugar
+                    if (x == 1) state = GameState::OPTIONS;  // Opciones
+                    if (x == 2) state = GameState::ABOUT;    // Acerca de
+                    if (x == 3) window.close();
+                }
+            }
+            // Volver al menu principal con la tecla Esc
+            if (state != GameState::MENU && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
+                state = GameState::MENU;
+                if (event.key.code == sf::Keyboard::Return) {
+                    state = GameState::MENU;
+                    mainMenu.resetSeleccion();
+                }
+            }
         }
-
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-            circle.move(sf::Vector2f(1.0f, 0.5f));
-        }    
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
-            circle.move(sf::Vector2f(-0.5f, -1.0f));
-        }       
-        rectangle.move(sf::Vector2f(0.0f, 0.0f));
-
-        if(circle.getGlobalBounds().findIntersection(rectangle.getGlobalBounds())){
-            circle.setFillColor(sf::Color::White);
-        }
-
+        // Se limpia la pantlla y el dibujo del fondo
         window.clear();
-        window.draw(circle);
-        window.draw(rectangle);
+        window.draw(sprite);
+        
+        // Si el estado es menu, se dibuja el menui principal
+        if (state == GameState::MENU) {
+            mainMenu.draw(window);
+        }
+        else if (state == GameState::PLAY) {
+            // Se realiza el movimiento del jugador
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+                jugador.mover(sf::Vector2f(1.0f, 0.0f));
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+                jugador.mover(sf::Vector2f(-1.0f, 0.0f));
+
+            jugador.dibujar(window);
+        }
+        else if (state == GameState::OPTIONS) {
+            // Se dibuja la pantalla de opciones
+            sf::Font font;
+            font.loadFromFile("resources/upheavtt.ttf");
+            sf::Text text("OPTIONS\nPresiona ESC para volver", font, 65);
+            text.setFillColor(sf::Color::Cyan);
+            text.setPosition(100, 160);
+            window.draw(text);
+        }
+        else if (state == GameState::ABOUT) {
+            // Se dibuja la pantalla de "Acerca de"
+            sf::Font font;
+            font.loadFromFile("resources/upheavtt.ttf");
+            sf::Text text("ABOUT\nPresiona ESC para volver", font, 65);
+            text.setFillColor(sf::Color::Cyan);
+            text.setPosition(100, 160);
+            window.draw(text);
+        }
+
         window.display();
     }
-    
+    return 0;
 }
