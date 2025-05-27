@@ -10,7 +10,7 @@ public:
     sf::Sprite& getSprite();
 
 private:
-   sf::Texture textura;
+    sf::Texture textura;
     sf::Texture texturaIdle;
     sf::Sprite sprite;
     std::string rutaIdleSheet;
