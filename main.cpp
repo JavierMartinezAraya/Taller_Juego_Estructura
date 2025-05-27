@@ -32,7 +32,7 @@ int main() {
     Opciones opciones(width, height);
 
     // Creacion del jugador
-    Jugador jugador("resources/Ramos.png", sf::Vector2f(300.0f, 400.0f));
+    Jugador jugador("resources/Ramos.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Idle-Sheet.png");
 
     // Estado del juego
     GameState state = GameState::MENU;
@@ -86,6 +86,8 @@ int main() {
                 jugador.mover(sf::Vector2f(1.0f, 0.0f));
             if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
                 jugador.mover(sf::Vector2f(-1.0f, 0.0f));
+            else if (!sf::Mouse::isButtonPressed(sf::Mouse::Left) && !sf::Mouse::isButtonPressed(sf::Mouse::Right)) jugador.idle();
+            
 
             jugador.dibujar(window);
         }
