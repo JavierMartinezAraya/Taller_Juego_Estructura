@@ -3,22 +3,40 @@
 
 class Jugador {
 public:
-    Jugador(const std::string& rutaImagen, sf::Vector2f posicionInicial, const std::string& rutaSheet);
-    void mover(const sf::Vector2f& desplazamiento);
-    void dibujar(sf::RenderWindow& ventana) const;
-    void idle();
-    sf::Sprite& getSprite();
+    Jugador(const std::string& rutaIdle, sf::Vector2f posicionInicial, const std::string& rutaAtaque);
+    bool estaAtacando() const { return atacando; }                  // Devueleve true si el jugador está atacando
+    bool estaVivo() const { return vida > 0; }                      // Devuelve true si el jugador tiene vida
+    int getVida() const { return vida; }                            // Devuelve la vida actual del jugador
+    void mover(const sf::Vector2f& desplazamiento);                 // Se mueve al jugador
+    void dibujar(sf::RenderWindow& ventana) const;                  // Dibuja al jugador
+    void idle();                                                    // Jugador en reposo
+    void atacar();                                                  // Jugador atacando
+    void actualizarAnimacion();                                     // Actualiza la animación del jugador
+    bool getDanioAplicado() const { return danioAplicado; }         // Verifica si se aplico el danio
+    void setDanioAplicado(bool valor) { danioAplicado = valor; }    // Establece si se aplicó el danio
+    void recibirDanio(int cantidad);                                // Recibe danio, reduce la vida del jugador       
+    int getFrameAtaque() const { return frameAtaque; }              // Resta la vida al jugador
+    sf::FloatRect getHitbox() const;                                // Devuelve la hitbox del jugador
+    sf::Sprite& getSprite();                                        // Devuelve el sprite del jugador
 
 private:
-    sf::Texture textura;
-    sf::Texture texturaIdle;
-    sf::Sprite sprite;
-    std::string rutaIdleSheet;
-    int idleFrame = 0;                // Frame actual
-    int idleFrameCount = 6;           // Total de frames (ajusta según tu sprite sheet)
-    int idleFrameWidth = 384;          // Ancho de cada frame (ajusta según tu sprite sheet)
-    int idleFrameHeight = 384;         // Alto de cada frame (ajusta según tu sprite sheet)
-    sf::Clock idleClock;              // Reloj para controlar el tiempo entre frames
-    float idleFrameTime = 0.15f;      // Tiempo entre frames en segundos
+
+    int vida = 100;                     // Vida del jugador
+    bool danioAplicado = false;         // Indica si se aplico danio
+    sf::Texture texturaIdle;            // Textura del estado en reposo
+    sf::Texture texturaAtaque;          // Textura del estado de ataque
+    sf::Sprite sprite;                  // Sprite del jugador
+
+    int frame = 0;                      // Frame actual de la animacion
+    int frameCountIdle = 6;             // frames de idle (reposo)
+    int frameCountAtaque = 16;          // frames de ataque
+    int frameWidth = 384;               // ancho de frame (igual para ambos)
+    int frameHeight = 384;              // alto de frame (igual para ambos)
+    sf::Clock animClock;                // Reloj para controlar el tiempo de animacion
+    float frameTimeIdle = 0.15f;        // Tiempo por frame en idle (reposo)
+    float frameTimeAtaque = 0.08f;      // Tiempo por frame en ataque
+    bool atacando = false;              // Si el jugador está atacando
+    int frameAtaque = 0;                // Frame actual de la animacion de ataque
+    int frameIdle = 0;                  // Frame actual de la animacion de idle (reposo)
 
 };

@@ -32,8 +32,12 @@ int main() {
     Opciones opciones(width, height);
 
     // Creacion del jugador
-    Jugador jugador("resources/Ramos.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Idle-Sheet.png");
-
+    Jugador jugador("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack-Sheet.png");
+    Jugador jugador2("resources/Jugador2_Reposo-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Jugador2_Ataque-Sheet.png");
+    // Controla de quien es el turno, true para el jugador y false para el jugador2
+    bool turnoJugador = true;
+    // Controla si se puede atacar 
+    bool esperandoAtaque = true; 
     // Estado del juego
     GameState state = GameState::MENU;
 
@@ -66,6 +70,16 @@ int main() {
                     mainMenu.resetSeleccion();
                 }
             }
+            // Ataque del jugador (tecla A)
+            if (state == GameState::PLAY && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::A && turnoJugador && esperandoAtaque) {
+                jugador.atacar();
+                esperandoAtaque = false;
+            }
+            // Ataque del jugador2 (tecla L)
+            if (state == GameState::PLAY && event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::L && !turnoJugador && esperandoAtaque) {
+                jugador2.atacar();
+                esperandoAtaque = false;
+            }
             // Manejo de las opciones
             if (state == GameState::OPTIONS && event.type == sf::Event::KeyReleased) { 
                 if (event.key.code == sf::Keyboard::Right) opciones.aumentarVolumen();
@@ -76,7 +90,7 @@ int main() {
         window.clear();
         window.draw(sprite);
         
-        // Si el estado es menu, se dibuja el menui principal
+        // Si el estado es menu, se dibuja el menu principal
         if (state == GameState::MENU) {
             mainMenu.draw(window);
         }
@@ -86,10 +100,43 @@ int main() {
                 jugador.mover(sf::Vector2f(1.0f, 0.0f));
             if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
                 jugador.mover(sf::Vector2f(-1.0f, 0.0f));
-            else if (!sf::Mouse::isButtonPressed(sf::Mouse::Left) && !sf::Mouse::isButtonPressed(sf::Mouse::Right)) jugador.idle();
-            
+            else if (!sf::Mouse::isButtonPressed(sf::Mouse::Left) && !sf::Mouse::isButtonPressed(sf::Mouse::Right))
+                jugador.idle();
 
-            jugador.dibujar(window);
+            jugador.actualizarAnimacion();
+            jugador2.actualizarAnimacion();
+            // Combate por turnos
+            if (turnoJugador) {
+                if (jugador.estaAtacando() && !jugador.getDanioAplicado() &&
+                    jugador.getFrameAtaque() == 11 &&
+                    jugador.getHitbox().intersects(jugador2.getHitbox())) {
+                    jugador2.recibirDanio(20);
+                    jugador.setDanioAplicado(true);
+                }
+                // Cambia de turno cuando termina la animacion de ataque
+                if (!jugador.estaAtacando() && !esperandoAtaque) {
+                    turnoJugador = false;
+                    esperandoAtaque = true;
+                }
+            } else {
+                if (jugador2.estaAtacando() && !jugador2.getDanioAplicado() &&
+                    jugador2.getFrameAtaque() == 11 &&
+                    jugador2.getHitbox().intersects(jugador.getHitbox())) {
+                    jugador.recibirDanio(20);
+                    jugador2.setDanioAplicado(true);
+                }
+                // Cambia de turno cuando termina la animacion de ataque
+                if (!jugador2.estaAtacando() && !esperandoAtaque) {
+                    turnoJugador = true;
+                    esperandoAtaque = true;
+                }
+        }
+
+            // Dibuja ambos jugadores
+            if (jugador.estaVivo())
+                jugador.dibujar(window);
+            if (jugador2.estaVivo())
+                jugador2.dibujar(window);
         }
         else if (state == GameState::OPTIONS) {
             // Se dibuja la pantalla de opciones
