@@ -1,18 +1,19 @@
 #include "MainMenu.h"
 
+
 // Constructor del menu
-MainMenu::MainMenu(float width, float height){
+MainMenu::MainMenu(float width, float height)
+:botonJugar("resources/Jugar_Button-Sheet.png", sf::Vector2f(400.0f, 100.0f)){
     
     // Cargar tipo de letra a usar
     font.loadFromFile("resources/upheavtt.ttf");
 
     // Jugar
-    mainMenu[0].setFont(font);
-    mainMenu[0].setFillColor(sf::Color::White);
-    mainMenu[0].setString("Play");
-    mainMenu[0].setCharacterSize(70);
-    mainMenu[0].setPosition(sf::Vector2f(400.0f, 200.0f));
-
+    mainMenu[0];{
+        botonJugar.framesConfig(400, 160, 49, 0.015f); // Configura los frames del boton
+        botonJugar.actualizar();
+    }
+    
     // Opciones
     mainMenu[1].setFont(font);
     mainMenu[1].setFillColor(sf::Color::White);
@@ -44,7 +45,20 @@ MainMenu::~MainMenu(){
 }
 // Dibujar el menu
 void MainMenu::draw(sf::RenderWindow& Window){
-    for (int i = 0; i < MaxMainMenu; i++){
+    // Detectar si el mouse está sobre el botón
+    sf::Vector2i mousePos = sf::Mouse::getPosition(Window);
+    sf::FloatRect bounds = botonJugar.getGlobalBounds();
+    if (bounds.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) {
+        botonJugar.actualizar(); // Solo anima si el mouse está encima
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            MainMenuSelected = 0; // Asignar el índice del botón "Jugar"
+        }
+    } else {
+        botonJugar.resetearFrame(); // Si no, vuelve al primer frame
+    }
+    botonJugar.dibujar(Window);
+
+    for (int i = 1; i < MaxMainMenu; i++){
         Window.draw(mainMenu[i]);
     }
 }
@@ -82,3 +96,4 @@ void MainMenu::resetSeleccion() {
     MainMenuSelected = 0;
     mainMenu[MainMenuSelected].setFillColor(sf::Color::Cyan);
 }
+
