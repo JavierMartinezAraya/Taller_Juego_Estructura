@@ -1,4 +1,5 @@
 #pragma once
+#include "Boton.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
@@ -19,6 +20,7 @@ class MainMenu{
         ~MainMenu();
 
     private:
+        Boton botonJugar; // Botón de jugar
         int MainMenuSelected;
         sf::Font font;
         sf::Text mainMenu[MaxMainMenu];
