@@ -3,10 +3,14 @@
 
 class Jugador {
 public:
-    Jugador(const std::string& rutaIdle, sf::Vector2f posicionInicial, const std::string& rutaAtaque);
+    Jugador(const std::string& rutaIdle, sf::Vector2f posicionInicial, const std::string& rutaAtaque, const std::string& rutaDanio);
     bool estaAtacando() const { return atacando; }                  // Devueleve true si el jugador está atacando
+    bool estaRecibiendoDanio() const { return recibiendoDanio; }
     bool estaVivo() const { return vida > 0; }                      // Devuelve true si el jugador tiene vida
     int getVida() const { return vida; }                            // Devuelve la vida actual del jugador
+    bool esperandoAccion = true;                                    // Si el jugador está esperando una acción
+    void moverIzquierda();                                          // Mueve al jugador a la izquierda
+    void moverDerecha();                                            // Mueve al jugador a la derecha
     void mover(const sf::Vector2f& desplazamiento);                 // Se mueve al jugador
     void dibujar(sf::RenderWindow& ventana) const;                  // Dibuja al jugador
     void idle();                                                    // Jugador en reposo
@@ -30,13 +34,18 @@ private:
     int frame = 0;                      // Frame actual de la animacion
     int frameCountIdle = 6;             // frames de idle (reposo)
     int frameCountAtaque = 16;          // frames de ataque
-    int frameWidth = 384;               // ancho de frame (igual para ambos)
-    int frameHeight = 384;              // alto de frame (igual para ambos)
+    int frameWidth = 640;               // ancho de frame (igual para ambos)
+    int frameHeight = 640;              // alto de frame (igual para ambos)
     sf::Clock animClock;                // Reloj para controlar el tiempo de animacion
     float frameTimeIdle = 0.15f;        // Tiempo por frame en idle (reposo)
     float frameTimeAtaque = 0.08f;      // Tiempo por frame en ataque
     bool atacando = false;              // Si el jugador está atacando
     int frameAtaque = 0;                // Frame actual de la animacion de ataque
     int frameIdle = 0;                  // Frame actual de la animacion de idle (reposo)
+
+    sf::Texture texturaDanio;           // Textura del estado de danio
+    bool recibiendoDanio = false;       // Indica si el jugador está recibiendo danio
+    sf::Clock danioClock;               // Reloj para controlar el tiempo de danio
+    float duracionDanio = 0.8f;         // Duración del estado de danio
 
 };
