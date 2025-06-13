@@ -3,6 +3,7 @@
 #include "MainMenu.h"
 #include "Jugador.h"
 #include "Opciones.h"
+#include <memory>
 
 // Posibles estados del juego
 enum class GameState {
@@ -39,12 +40,9 @@ int main() {
     MainMenu mainMenu(width, height);
     Opciones opciones(width, height);
 
-    // Creacion del jugador
-    Jugador jugador("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png");
-    Jugador jugador2("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");
-    // Se establece el tamaño del sprite de los jugadores
-    jugador.getSprite().setScale(0.65f, 0.65f);
-    jugador2.getSprite().setScale(0.65f, 0.65f);
+    // Los jugadores son punteros porque se crean dinanmicamente y se destruyen al final del juego
+    std::unique_ptr<Jugador> jugador;
+    std::unique_ptr<Jugador> jugador2;
     
     // Controla de quien es el turno, true para el jugador y false para el jugador2
     bool turnoJugador = true;
@@ -70,10 +68,19 @@ int main() {
                     mainMenu.MoveDown();
                 if (event.key.code == sf::Keyboard::Return) {
                     int x = mainMenu.MainMenuPressed();
-                    if (x == 0) state = GameState::PLAY;     // Jugar
+                    if (x == 0) {
+                        // Creacion de los jugadores
+                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png");
+                        jugador2 = std::make_unique<Jugador>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");
+                        // Se modifica el tamaño de los sprites
+                        jugador->getSprite().setScale(0.65f, 0.65f);
+                        jugador2->getSprite().setScale(0.65f, 0.65f);
+                        state = GameState::PLAY;     // Jugar
+                    }
+
                     if (x == 1) state = GameState::OPTIONS;  // Opciones
                     if (x == 2) state = GameState::ABOUT;    // Acerca de
-                    if (x == 3) window.close();
+                    if (x == 3) window.close();              // Salir
                 }
             }
             // Volver al menu principal con la tecla Esc
@@ -85,13 +92,13 @@ int main() {
                 }
             }
             // Ataque del jugador (tecla A)
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador.estaAtacando()) {
-                jugador.atacar();
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador->estaAtacando()) {
+                jugador->atacar();
                 esperandoAccion = false;
             }
             // Ataque del jugador2 (tecla L)
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2.estaAtacando()) {
-                jugador2.atacar();
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2->estaAtacando()) {
+                jugador2->atacar();
                 esperandoAccion = false;
             }
             // Manejo de las opciones
@@ -108,7 +115,7 @@ int main() {
         if (state == GameState::MENU) {
             mainMenu.draw(window);
         }
-        else if (state == GameState::PLAY) {
+        else if (state == GameState::PLAY && jugador && jugador2) {
             switch (faseRonda) {
                 case FaseRonda::TURNO_J1:
                     if (esperandoAccion) {
@@ -118,42 +125,42 @@ int main() {
                         }
                         if (mouseLiberado) {
                             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                                jugador.moverDerecha();
+                                jugador->moverDerecha();
                                 esperandoAccion = false;
                                 mouseLiberado = false;
                             } else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-                                sf::FloatRect nuevaHitbox = jugador.getHitbox();
+                                sf::FloatRect nuevaHitbox = jugador->getHitbox();
                                 nuevaHitbox.left -= 50.0f;
-                                if (!nuevaHitbox.intersects(jugador2.getHitbox())) {
-                                    jugador.moverIzquierda();
+                                if (!nuevaHitbox.intersects(jugador2->getHitbox())) {
+                                    jugador->moverIzquierda();
                                     esperandoAccion = false;
                                     mouseLiberado = false;
                                 }
                             }
                         }
                         // Ataque
-                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador.estaAtacando()) {
-                            jugador.atacar();
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador->estaAtacando()) {
+                            jugador->atacar();
                             esperandoAccion = false;
                         }
-                        if (jugador.estaAtacando() && jugador.getFrameAtaque() >= 8) { //cambiar los frames de ataque
+                        if (jugador->estaAtacando() && jugador->getFrameAtaque() >= 8) { //cambiar los frames de ataque
                             mitadAnimacionJ1 = true;
                         }
-                        if (!esperandoAccion && !jugador.estaAtacando() && mitadAnimacionJ1) {
+                        if (!esperandoAccion && !jugador->estaAtacando() && mitadAnimacionJ1) {
                             faseRonda = FaseRonda::TURNO_J2;
                             esperandoAccion = true;
                             mitadAnimacionJ1 = false;
                         }
                     }
                     // Aplica daño si corresponde
-                    if (jugador.estaAtacando() && !jugador.getDanioAplicado() &&
-                        jugador.getFrameAtaque() == 11 &&
-                        jugador.getHitbox().intersects(jugador2.getHitbox())) {
-                        jugador2.recibirDanio(20);
-                        jugador.setDanioAplicado(true);
+                    if (jugador->estaAtacando() && !jugador->getDanioAplicado() &&
+                        jugador->getFrameAtaque() == 11 &&
+                        jugador->getHitbox().intersects(jugador2->getHitbox())) {
+                        jugador2->recibirDanio(20);
+                        jugador->setDanioAplicado(true);
                     }
                     // Cuando termina la acción, pasa al turno del jugador 2
-                    if (!esperandoAccion && !jugador.estaAtacando()) {
+                    if (!esperandoAccion && !jugador->estaAtacando()) {
                         faseRonda = FaseRonda::TURNO_J2;
                         esperandoAccion = true;
                     }
@@ -167,42 +174,42 @@ int main() {
                         }
                         if (teclaLiberadaJ2) {
                             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                                jugador2.moverDerecha();
+                                jugador2->moverDerecha();
                                 esperandoAccion = false;
                                 teclaLiberadaJ2 = false;
                             } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                                sf::FloatRect nuevaHitbox = jugador2.getHitbox();
+                                sf::FloatRect nuevaHitbox = jugador2->getHitbox();
                                 nuevaHitbox.left -= 50.0f;
-                                if (!nuevaHitbox.intersects(jugador.getHitbox())) {
-                                    jugador2.moverIzquierda();
+                                if (!nuevaHitbox.intersects(jugador->getHitbox())) {
+                                    jugador2->moverIzquierda();
                                     esperandoAccion = false;
                                     teclaLiberadaJ2 = false;
                                 }
                             }
                         }
                         // Ataque
-                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2.estaAtacando()) {
-                            jugador2.atacar();
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2->estaAtacando()) {
+                            jugador2->atacar();
                             esperandoAccion = false;
                         }
-                        if (jugador2.estaAtacando() && jugador2.getFrameAtaque() >= 8) { //cambiar los frames de ataque
+                        if (jugador2->estaAtacando() && jugador2->getFrameAtaque() >= 8) { //cambiar los frames de ataque
                             mitadAnimacionJ2 = true;
                         }
-                        if (!esperandoAccion && !jugador2.estaAtacando() && mitadAnimacionJ2) {
+                        if (!esperandoAccion && !jugador2->estaAtacando() && mitadAnimacionJ2) {
                             faseRonda = FaseRonda::TURNO_J1;
                             esperandoAccion = true;
                             mitadAnimacionJ2 = false;
                         }
                     }
                     // Aplica daño si corresponde
-                    if (jugador2.estaAtacando() && !jugador2.getDanioAplicado() &&
-                        jugador2.getFrameAtaque() == 11 &&
-                        jugador2.getHitbox().intersects(jugador.getHitbox())) {
-                        jugador.recibirDanio(20);
-                        jugador2.setDanioAplicado(true);
+                    if (jugador2->estaAtacando() && !jugador2->getDanioAplicado() &&
+                        jugador2->getFrameAtaque() == 11 &&
+                        jugador2->getHitbox().intersects(jugador->getHitbox())) {
+                        jugador->recibirDanio(20);
+                        jugador2->setDanioAplicado(true);
                     }
                     // Cuando termina la acción, pasa al turno del jugador 1
-                    if (!esperandoAccion && !jugador2.estaAtacando()) {
+                    if (!esperandoAccion && !jugador2->estaAtacando()) {
                         faseRonda = FaseRonda::TURNO_J1;
                         esperandoAccion = true;
                     }
@@ -210,13 +217,13 @@ int main() {
             }
         // Actualiza animaciones y dibuja jugadores
         if (!esperandoAccion) {
-            jugador.actualizarAnimacion();
-            jugador2.actualizarAnimacion();
+            jugador->actualizarAnimacion();
+            jugador2->actualizarAnimacion();
         }
-        if (jugador.estaVivo())
-            jugador.dibujar(window);
-        if (jugador2.estaVivo())
-            jugador2.dibujar(window);
+        if (jugador->estaVivo())
+            jugador->dibujar(window);
+        if (jugador2->estaVivo())
+            jugador2->dibujar(window);
     }
         else if (state == GameState::OPTIONS) {
             // Se dibuja la pantalla de opciones
