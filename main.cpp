@@ -101,7 +101,7 @@ int main() {
                     mainMenu.resetSeleccion();
                 }
             }
-            // Ataque del jugador (tecla A)
+           /* // Ataque del jugador (tecla A)
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador->estaAtacando()) {
                 jugador->atacar();
                 esperandoAccion = false;
@@ -110,7 +110,7 @@ int main() {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2->estaAtacando()) {
                 jugador2->atacar();
                 esperandoAccion = false;
-            }
+            }*/
             // Manejo de las opciones
             if (state == GameState::OPTIONS && event.type == sf::Event::KeyReleased) { 
                 if (event.key.code == sf::Keyboard::Right) opciones.aumentarVolumen();
@@ -127,7 +127,7 @@ int main() {
         }
         // Si el estado play PvP, se realiza el juego PvP
         else if (state == GameState::PLAY_PVP && jugador && jugador2) {
-            jugador->actualizarAnimacion();
+            
             jugador2->actualizarAnimacion();
             switch (faseRonda) {
                 case FaseRonda::TURNO_J1:
