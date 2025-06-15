@@ -2,7 +2,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-#define MaxMainMenu 4
+#define MaxMainMenu 5
 class MainMenu{
 
     public:

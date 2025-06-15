@@ -8,7 +8,8 @@
 // Posibles estados del juego
 enum class GameState {
     MENU,
-    PLAY,
+    PLAY_PVP,
+    PLAY_PVE,
     OPTIONS,
     ABOUT
 };
@@ -75,12 +76,21 @@ int main() {
                         // Se modifica el tamaño de los sprites
                         jugador->getSprite().setScale(0.65f, 0.65f);
                         jugador2->getSprite().setScale(0.65f, 0.65f);
-                        state = GameState::PLAY;     // Jugar
+                        state = GameState::PLAY_PVP;     // Jugar
+                    }
+                    if (x == 1) {
+                        // Creacion de los jugadores
+                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png");
+                        jugador2 = std::make_unique<Jugador>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");
+                        // Se modifica el tamaño de los sprites
+                        jugador->getSprite().setScale(0.65f, 0.65f);
+                        jugador2->getSprite().setScale(0.65f, 0.65f);
+                        state = GameState::PLAY_PVE;     // Jugar
                     }
 
-                    if (x == 1) state = GameState::OPTIONS;  // Opciones
-                    if (x == 2) state = GameState::ABOUT;    // Acerca de
-                    if (x == 3) window.close();              // Salir
+                    if (x == 2) state = GameState::OPTIONS;  // Opciones
+                    if (x == 3) state = GameState::ABOUT;    // Acerca de
+                    if (x == 4) window.close();              // Salir
                 }
             }
             // Volver al menu principal con la tecla Esc
@@ -115,7 +125,10 @@ int main() {
         if (state == GameState::MENU) {
             mainMenu.draw(window);
         }
-        else if (state == GameState::PLAY && jugador && jugador2) {
+        // Si el estado play PvP, se realiza el juego PvP
+        else if (state == GameState::PLAY_PVP && jugador && jugador2) {
+            jugador->actualizarAnimacion();
+            jugador2->actualizarAnimacion();
             switch (faseRonda) {
                 case FaseRonda::TURNO_J1:
                     if (esperandoAccion) {
@@ -216,15 +229,21 @@ int main() {
                     break;
             }
         // Actualiza animaciones y dibuja jugadores
-        if (!esperandoAccion) {
-            jugador->actualizarAnimacion();
-            jugador2->actualizarAnimacion();
-        }
+        //if (!esperandoAccion) {
+            //jugador->actualizarAnimacion();
+            //jugador2->actualizarAnimacion();
+        //}
         if (jugador->estaVivo())
             jugador->dibujar(window);
         if (jugador2->estaVivo())
             jugador2->dibujar(window);
     }
+        // Si el estado play PvE, se realiza el juego PvE
+        else if (state == GameState::PLAY_PVE && jugador && jugador2) {
+            jugador->actualizarAnimacion();
+            jugador2->actualizarAnimacion();
+
+        }
         else if (state == GameState::OPTIONS) {
             // Se dibuja la pantalla de opciones
             sf::Font font;
