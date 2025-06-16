@@ -101,16 +101,6 @@ int main() {
                     mainMenu.resetSeleccion();
                 }
             }
-           /* // Ataque del jugador (tecla A)
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador->estaAtacando()) {
-                jugador->atacar();
-                esperandoAccion = false;
-            }
-            // Ataque del jugador2 (tecla L)
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2->estaAtacando()) {
-                jugador2->atacar();
-                esperandoAccion = false;
-            }*/
             // Manejo de las opciones
             if (state == GameState::OPTIONS && event.type == sf::Event::KeyReleased) { 
                 if (event.key.code == sf::Keyboard::Right) opciones.aumentarVolumen();
