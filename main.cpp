@@ -218,11 +218,7 @@ int main() {
                     }
                     break;
             }
-        // Actualiza animaciones y dibuja jugadores
-        //if (!esperandoAccion) {
-            //jugador->actualizarAnimacion();
-            //jugador2->actualizarAnimacion();
-        //}
+            
         if (jugador->estaVivo())
             jugador->dibujar(window);
         if (jugador2->estaVivo())
