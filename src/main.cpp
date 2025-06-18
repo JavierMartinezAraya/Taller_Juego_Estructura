@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "MainMenu.h"
 #include "Jugador.h"
+#include "JugadorIA.h"
 #include "Opciones.h"
 #include <memory>
 
@@ -44,6 +45,7 @@ int main() {
     // Los jugadores son punteros porque se crean dinanmicamente y se destruyen al final del juego
     std::unique_ptr<Jugador> jugador;
     std::unique_ptr<Jugador> jugador2;
+    std::unique_ptr<JugadorIA> jugadorIA;
     
     // Controla de quien es el turno, true para el jugador y false para el jugador2
     bool turnoJugador = true;
@@ -81,10 +83,10 @@ int main() {
                     if (x == 1) {
                         // Creacion de los jugadores
                         jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png");
-                        jugador2 = std::make_unique<Jugador>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");
+                        jugadorIA = std::make_unique<JugadorIA>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");
                         // Se modifica el tamaño de los sprites
                         jugador->getSprite().setScale(0.65f, 0.65f);
-                        jugador2->getSprite().setScale(0.65f, 0.65f);
+                        jugadorIA->getSprite().setScale(0.65f, 0.65f);
                         state = GameState::PLAY_PVE;     // Jugar
                     }
 
@@ -241,7 +243,85 @@ int main() {
         // Si el estado play PvE, se realiza el juego PvE
         else if (state == GameState::PLAY_PVE && jugador && jugador2) {
             jugador->actualizarAnimacion();
-            jugador2->actualizarAnimacion();
+            jugadorIA->actualizarAnimacion();
+            switch (faseRonda) {
+                case FaseRonda::TURNO_J1:
+                    if (esperandoAccion) {
+                        // Movimiento
+                        if (!sf::Mouse::isButtonPressed(sf::Mouse::Left) && !sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+                            mouseLiberado = true;
+                        }
+                        if (mouseLiberado) {
+                            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                                jugador->moverDerecha();
+                                esperandoAccion = false;
+                                mouseLiberado = false;
+                            } else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+                                sf::FloatRect nuevaHitbox = jugador->getHitbox();
+                                nuevaHitbox.left -= 50.0f;
+                                if (!nuevaHitbox.intersects(jugador2->getHitbox())) {
+                                    jugador->moverIzquierda();
+                                    esperandoAccion = false;
+                                    mouseLiberado = false;
+                                }
+                            }
+                        }
+                        // Ataque
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador->estaAtacando()) {
+                            jugador->atacar();
+                            esperandoAccion = false;
+                        }
+                        if (jugador->estaAtacando() && jugador->getFrameAtaque() >= 8) { //cambiar los frames de ataque
+                            mitadAnimacionJ1 = true;
+                        }
+                        if (!esperandoAccion && !jugador->estaAtacando() && mitadAnimacionJ1) {
+                            faseRonda = FaseRonda::TURNO_J2;
+                            esperandoAccion = true;
+                            mitadAnimacionJ1 = false;
+                        }
+                    }
+                    // Aplica daño si corresponde
+                    if (jugador->estaAtacando() && !jugador->getDanioAplicado() &&
+                        jugador->getFrameAtaque() == 11 &&
+                        jugador->getHitbox().intersects(jugador2->getHitbox())) {
+                        jugador2->recibirDanio(20);
+                        jugador->setDanioAplicado(true);
+                    }
+                    // Cuando termina la acción, pasa al turno del jugador 2
+                    if (!esperandoAccion && !jugador->estaAtacando()) {
+                        faseRonda = FaseRonda::TURNO_J2;
+                        esperandoAccion = true;
+                    }
+                    break;
+
+                case FaseRonda::TURNO_J2:
+                    // Lógica de la IA
+                    if (jugadorIA->estaVivo()) {
+                        JugadorIA::EstadoJuego estadoActual;
+                        estadoActual.vidaIA = jugadorIA->getVida();
+                        estadoActual.vidaJugador = jugador->getVida();
+                        estadoActual.posX_IA = jugadorIA->getSprite().getPosition().x;
+                        estadoActual.posX_Jugador = jugador->getSprite().getPosition().x;
+                        estadoActual.turnoIA = true;
+
+                        JugadorIA::Accion accionElegida = jugadorIA->decidirAccion(estadoActual, 2); // Puedes ajustar la profundidad
+
+                        switch (accionElegida) {
+                            case JugadorIA::MOVER_IZQ: jugadorIA->moverIzquierda(); break;
+                            case JugadorIA::MOVER_DER: jugadorIA->moverDerecha(); break;
+                            case JugadorIA::ATACAR: jugadorIA->atacar(); break;
+                            case JugadorIA::BLOQUEAR: /* implementar bloqueo */ break;
+                        }
+                        // Aquí puedes manejar el cambio de turno, animaciones, etc.
+                        // faseRonda = FaseRonda::TURNO_J1;
+                    }
+                    break;
+            }
+
+            if (jugador->estaVivo())
+                jugador->dibujar(window);
+            if (jugadorIA->estaVivo())
+                jugadorIA->dibujar(window);
 
         }
         else if (state == GameState::OPTIONS) {
