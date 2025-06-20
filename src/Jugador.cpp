@@ -2,7 +2,7 @@
 #include "Jugador.h"
 
 // Constructor
-Jugador::Jugador(const std::string& rutaIdle, sf::Vector2f posicionInicial, const std::string& rutaAtaque, const std::string& rutaDanio) {
+Jugador::Jugador(const std::string& rutaIdle, sf::Vector2f posicionInicial, const std::string& rutaAtaque, const std::string& rutaDanio, const std::string& rutaBloqueo) {
     if (!texturaIdle.loadFromFile(rutaIdle)) {
         std::cerr << "No se pudo cargar el idle: " << rutaIdle << std::endl;
     }
@@ -11,6 +11,9 @@ Jugador::Jugador(const std::string& rutaIdle, sf::Vector2f posicionInicial, cons
     }
     if (!texturaDanio.loadFromFile(rutaDanio)) {
         std::cerr << "No se pudo cargar el daño: " << rutaDanio << std::endl;
+    }
+    if (!texturaBloqueo.loadFromFile(rutaBloqueo)) {
+        std::cerr << "No se pudo cargar el bloqueo: " << rutaBloqueo << std::endl;
     }
     sprite.setTexture(texturaIdle);
     sprite.setPosition(posicionInicial);
@@ -32,6 +35,16 @@ void Jugador::idle() {
     }
 }
 // Animacion de ataque del jugador
+void Jugador::bloquear() {
+    if (!bloqueando) {
+        bloqueando = true;
+        frameBloqueo = 0;
+        animClock.restart();
+        sprite.setTexture(texturaBloqueo);
+        sprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
+    }
+}
+
 void Jugador::atacar() {
     if (!atacando) {
         atacando = true;
@@ -71,6 +84,20 @@ void Jugador::actualizarAnimacion() {
                 sprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
             } else {
                 sprite.setTextureRect(sf::IntRect(frameAtaque * frameWidth, 0, frameWidth, frameHeight));
+            }
+            animClock.restart();
+        }
+    }
+    if (bloqueando){
+        if (animClock.getElapsedTime().asSeconds() > frameTimeBloqueo) {
+            frameBloqueo++;
+            if (frameBloqueo >= frameCountBloqueo) {
+                bloqueando = false;
+                sprite.setTexture(texturaIdle);
+                frameIdle = 0;
+                sprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
+            } else {
+                sprite.setTextureRect(sf::IntRect(frameBloqueo * frameWidth, 0, frameWidth, frameHeight));
             }
             animClock.restart();
         }

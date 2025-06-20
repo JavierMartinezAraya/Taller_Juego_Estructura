@@ -73,8 +73,8 @@ int main() {
                     int x = mainMenu.MainMenuPressed();
                     if (x == 0) {
                         // Creacion de los jugadores
-                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png");
-                        jugador2 = std::make_unique<Jugador>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");
+                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png","resources/Ramos_Block-Sheet.png");
+                        jugador2 = std::make_unique<Jugador>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png","resources/Pablo_Block-Sheet.png");
                         // Se modifica el tamaño de los sprites
                         jugador->getSprite().setScale(0.65f, 0.65f);
                         jugador2->getSprite().setScale(0.65f, 0.65f);
@@ -82,8 +82,8 @@ int main() {
                     }
                     if (x == 1) {
                         // Creacion de los jugadores
-                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png");
-                        jugadorIA = std::make_unique<JugadorIA>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");
+                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png","resources/Ramos_Block-Sheet.png");// falta implementar bloqueo
+                        jugadorIA = std::make_unique<JugadorIA>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");// falta implementar bloqueo
                         // Se modifica el tamaño de los sprites
                         jugador->getSprite().setScale(0.65f, 0.65f);
                         jugadorIA->getSprite().setScale(0.65f, 0.65f);
@@ -162,6 +162,11 @@ int main() {
                                 mitadAnimacionJ1 = false;
                                 esperandoAccion = false;
                             }
+                            // Bloqueo J2
+                            if (sf::Keyboard::isKeyPressed(sf::Keyboard::K) && !jugador2->estaBloqueando()) {
+                                jugador2->bloquear();
+                                esperandoAccion = false;
+                            }
                             // Ataque J2
                             if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2->estaAtacando()) {
                                 jugador2->atacar();
@@ -196,6 +201,11 @@ int main() {
                                 }
                             }
                         }
+                        // Bloqueo
+                        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !jugador->estaBloqueando()){
+                            jugador->bloquear();
+                            esperandoAccion = false;
+                        }
                         // Ataque
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !jugador->estaAtacando()) {
                             jugador->atacar();
@@ -209,7 +219,7 @@ int main() {
                         break;
                     }
                     // Aplica daño si corresponde
-                    if (jugador->estaAtacando() && !jugador->getDanioAplicado()&& jugador->getFrameAtaque() == 10 && jugador->getHitbox().intersects(jugador2->getHitbox())) {
+                    if (jugador->estaAtacando() && !jugador->getDanioAplicado()&& jugador->getFrameAtaque() == 10 && jugador->getHitbox().intersects(jugador2->getHitbox()) && !jugador2->estaBloqueando()) {
                         jugador2->recibirDanio(20);
                         jugador->setDanioAplicado(true);
                     }
@@ -241,6 +251,11 @@ int main() {
                                     mouseLiberado = false;
                                     }
                                 }
+                                esperandoAccion = false;
+                            }
+                            // Bloqueo J1
+                            if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !jugador->estaBloqueando()) {
+                                jugador->bloquear();
                                 esperandoAccion = false;
                             }
                             // Ataque J1
@@ -278,6 +293,11 @@ int main() {
                                 }
                             }
                         }
+                        // Bloqueo
+                        if(sf::Keyboard::isKeyPressed(sf::Keyboard::K) && !jugador2->estaBloqueando()){
+                            jugador2->bloquear();
+                            esperandoAccion = false;
+                        }
                         // Ataque
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && !jugador2->estaAtacando()) {
                             jugador2->atacar();
@@ -292,7 +312,7 @@ int main() {
                         break;
                     }
                     // Aplica daño si corresponde
-                    if (jugador2->estaAtacando() && !jugador2->getDanioAplicado() && jugador2->getFrameAtaque() == 10 && jugador2->getHitbox().intersects(jugador->getHitbox())) {
+                    if (jugador2->estaAtacando() && !jugador2->getDanioAplicado() && jugador2->getFrameAtaque() == 10 && jugador2->getHitbox().intersects(jugador->getHitbox()) && !jugador->estaBloqueando()) {
                         jugador->recibirDanio(20);
                         jugador2->setDanioAplicado(true);
                     }
@@ -349,9 +369,7 @@ int main() {
                         }
                     }
                     // Aplica daño si corresponde
-                    if (jugador->estaAtacando() && !jugador->getDanioAplicado() &&
-                        jugador->getFrameAtaque() == 11 &&
-                        jugador->getHitbox().intersects(jugador2->getHitbox())) {
+                    if (jugador->estaAtacando() && !jugador->getDanioAplicado() && jugador->getFrameAtaque() == 11 && jugador->getHitbox().intersects(jugador2->getHitbox())) {
                         jugador2->recibirDanio(20);
                         jugador->setDanioAplicado(true);
                     }
