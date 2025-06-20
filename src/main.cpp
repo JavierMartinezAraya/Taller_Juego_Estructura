@@ -159,6 +159,7 @@ int main() {
                                         teclaLiberadaJ2 = false;
                                     }
                                 }
+                                mitadAnimacionJ1 = false;
                                 esperandoAccion = false;
                             }
                             // Ataque J2
@@ -170,6 +171,8 @@ int main() {
                         // Cuando J2 termina su acción, reanuda animación de J1
                         if (!esperandoAccion) {
                             mitadAnimacionJ1 = false;
+                            faseRonda = FaseRonda::TURNO_J2; 
+                            esperandoAccion = true;
                         }
                         break;
                     }
@@ -248,8 +251,11 @@ int main() {
                         }
                         // Cuando J1 termina su acción, reanuda animación de J2
                         if (!esperandoAccion) {
+                            faseRonda = FaseRonda::TURNO_J1;
+                            esperandoAccion = true;
                             mitadAnimacionJ2 = false;
                         }
+                        mitadAnimacionJ2 = false;
                         break;
                     }
                     if (esperandoAccion) {
