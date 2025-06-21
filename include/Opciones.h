@@ -1,18 +1,42 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+/**
+ * @brief Clase que gestiona las opciones de configuracion, como el volumen, en el juego
+ */
 class Opciones { 
 public:
+    /**
+     * @brief Constructor de Opciones
+     * @param width Ancho de la ventana
+     * @param height Alto de la ventana
+     */
     Opciones(float width, float height);
 
-    void draw(sf::RenderWindow& window);; //Dibuja el texto del volumen.
-    void aumentarVolumen(); // Sube el volumen.
-    void disminuirVolumen(); // Baja el volumen.
+    /**
+     * @brief Dibuja el texto del volumen en la ventana
+     * @param window Referencia a la ventana SFML
+     */
+    void draw(sf::RenderWindow& window);;
 
-    float getVolumen() const; //Devuelve el valor actual del volumen.
+    /**
+     * @brief Sube el volumen
+     */
+    void aumentarVolumen();
+
+    /**
+     * @brief Baja el volumen
+     */
+    void disminuirVolumen();
+
+    /**
+     * @brief Devuelve el valor actual del volumen
+     * @return Valor del volumen
+     */
+    float getVolumen() const;
 
 private:
-    float volumen;
-    sf::Font font; // Se carga la fuente a través de un objeto Font.
-    sf::Text textoVolumen;  // Se carga el texto del volumen.
+    float volumen;          // Volumen actual del juego
+    sf::Font font;          // Fuente para el texto
+    sf::Text textoVolumen;  // Texto que muestra el volumen actual
 };
