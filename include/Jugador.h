@@ -1,58 +1,163 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+/**
+ * @brief Clase que representa a un jugador controlado por el usuario en el juego
+ */
 class Jugador {
 public:
+    /**
+     * @brief Constructor de Jugador
+     * @param rutaIdle Ruta de la textura idle
+     * @param posicionInicial Posicion inicial del sprite
+     * @param rutaAtaque Ruta de la textura de ataque
+     * @param rutaDanio Ruta de la textura de danio
+     * @param rutaBloqueo Ruta de la textura de bloqueo
+     */
     Jugador(const std::string& rutaIdle, sf::Vector2f posicionInicial, const std::string& rutaAtaque, const std::string& rutaDanio, const std::string& rutaBloqueo);
-    bool estaBloqueando() const { return bloqueando; }              // Devuelve true si el jugador está bloqueando
-    bool estaAtacando() const { return atacando; }                  // Devuelve true si el jugador está atacando
+    
+    /**
+     * @brief Indica si el jugador esta bloqueando
+     * @return true si esta bloqueando, false en caso contrario
+     */
+    bool estaBloqueando() const { return bloqueando; }
+    
+    /**
+     * @brief Indica si el jugador esta atacando
+     * @return true si esta atacando, false en caso contrario
+     */
+    bool estaAtacando() const { return atacando; }
+    
+    /**
+     * @brief Indica si el jugador esta recibiendo danio
+     * @return true si está recibiendo danio, false en caso contrario
+     */    
     bool estaRecibiendoDanio() const { return recibiendoDanio; }
-    bool estaVivo() const { return vida > 0; }                      // Devuelve true si el jugador tiene vida
-    int getVida() const { return vida; }                            // Devuelve la vida actual del jugador
-    bool esperandoAccion = true;                                    // Si el jugador está esperando una acción
-    void moverIzquierda();                                          // Mueve al jugador a la izquierda
-    void moverDerecha();                                            // Mueve al jugador a la derecha
-    void mover(const sf::Vector2f& desplazamiento);                 // Se mueve al jugador
-    void dibujar(sf::RenderWindow& ventana) const;                  // Dibuja al jugador
-    void idle();                                                    // Jugador en reposo
-    void bloquear();                                                // Jugador bloqueando
-    void atacar();                                                  // Jugador atacando
-    void actualizarAnimacion();                                     // Actualiza la animación del jugador
-    bool getDanioAplicado() const { return danioAplicado; }         // Verifica si se aplico el danio
-    void setDanioAplicado(bool valor) { danioAplicado = valor; }    // Establece si se aplicó el danio
-    void recibirDanio(int cantidad);                                // Recibe danio, reduce la vida del jugador       
-    int getFrameAtaque() const { return frameAtaque; }              // Resta la vida al jugador
-    sf::FloatRect getHitbox() const;                                // Devuelve la hitbox del jugador
-    sf::Sprite& getSprite();                                        // Devuelve el sprite del jugador
+    
+    /**
+     * @brief Indica si el jugador esta vivo
+     * @return true si la vida es mayor a 0
+     */   
+    bool estaVivo() const { return vida > 0; }
+    
+    /**
+     * @brief Obtiene la vida actual del jugdor
+     * @return Valor de vida
+     */
+    int getVida() const { return vida; }
+
+    /**
+     * @brief Indica si el jugador esta esperando una accion
+     * @return true si esta esperando, false en caso contrario
+     */
+    bool esperandoAccion = true;
+
+    /**
+     * @brief Mueve al jugador hacia la izquierda
+     */
+    void moverIzquierda();
+
+    /**
+     * @brief Mueve al jugador hacia la derecha
+     */
+    void moverDerecha();
+
+    /**
+     * @brief Mueve al jugador segun un desplazamiento dado
+     * @param desplazamiento Vector de desplazamiento
+     */
+    void mover(const sf::Vector2f& desplazamiento);
+
+    /**
+     * @brief Dibuja el sprite del jugador en la ventana
+     * @param ventana Referencia a la ventana SFML
+     */
+    void dibujar(sf::RenderWindow& ventana) const;
+
+    /**
+     * @brief Cambia la animación a idle si no está atacando o bloqueando
+     */
+    void idle();
+
+    /**
+     * @brief Inicia la animacion de bloqueo
+     */
+    void bloquear();
+
+    /**
+     * @brief Inicia la animacion de ataque
+     */
+    void atacar();
+
+    /**
+     * @brief Actualiza la animacion segun el estado actual
+     */
+    void actualizarAnimacion();
+    
+    /**
+     * @brief Obtiene el estado de danio aplicado
+     * @return true si el danio fue aplicado, false en caso contrario
+     */
+    bool getDanioAplicado() const { return danioAplicado; }
+
+    /**
+     * @brief Establece si el danio fue aplicado en el ataque actual
+     * @param valor true si el danio fue aplicado
+     */
+    void setDanioAplicado(bool valor) { danioAplicado = valor; }
+
+    /**
+     * @brief Aplica danio al jugador
+     * @param cantidad Cantidad de danio a aplicar
+     */
+    void recibirDanio(int cantidad);      
+
+    /**
+     * @brief Obtiene el frame actual de la animacion de ataque.
+     * @return Frame de ataque.
+     */
+    int getFrameAtaque() const { return frameAtaque; }
+
+    /**
+     * @brief Devuelve la hitbox del personaje para colisiones
+     * @return Rectangulo flotante con la hitbox.
+     */
+    sf::FloatRect getHitbox() const;
+
+    /**
+     * @brief Devuelve el sprite del jugador
+     * @return Referencia al sprite
+     */
+    sf::Sprite& getSprite();
 
 private:
 
-    int vida = 100;                     // Vida del jugador
-    bool danioAplicado = false;         // Indica si se aplico danio
-    sf::Texture texturaIdle;            // Textura del estado en reposo
-    sf::Texture texturaBloqueo;         // Textura del estado de bloqueo
-    sf::Texture texturaAtaque;          // Textura del estado de ataque
-    sf::Sprite sprite;                  // Sprite del jugador
+    int vida = 100;
+    bool danioAplicado = false;
+    sf::Texture texturaIdle;
+    sf::Texture texturaBloqueo;
+    sf::Texture texturaAtaque;
+    sf::Sprite sprite;
 
-    int frame = 0;                      // Frame actual de la animacion
-    int frameCountIdle = 6;             // frames de idle (reposo)
-    int frameCountAtaque = 16;          // frames de ataque
-    int frameCountBloqueo = 16;          // frames de bloqueo
-    int frameWidth = 640;               // ancho de frame (igual para ambos)
-    int frameHeight = 640;              // alto de frame (igual para ambos)
-    sf::Clock animClock;                // Reloj para controlar el tiempo de animacion
-    float frameTimeIdle = 0.15f;        // Tiempo por frame en idle (reposo)
-    float frameTimeAtaque = 0.08f;      // Tiempo por frame en ataque
-    float frameTimeBloqueo = 0.08f;     // Tiempo por frame en bloqueo
-    bool atacando = false;              // Si el jugador está atacando
-    bool bloqueando = false;            // Si el jugador está bloqueando
-    int frameAtaque = 0;                // Frame actual de la animacion de ataque
-    int frameBloqueo = 0;               // Frame actual de la animacion de bloqueo
-    int frameIdle = 0;                  // Frame actual de la animacion de idle (reposo)
+    int frame = 0;
+    int frameCountIdle = 6;
+    int frameCountAtaque = 16;
+    int frameCountBloqueo = 16;
+    int frameWidth = 640;
+    int frameHeight = 640;
+    sf::Clock animClock;
+    float frameTimeIdle = 0.15f;
+    float frameTimeAtaque = 0.08f;
+    float frameTimeBloqueo = 0.08f;
+    bool atacando = false;
+    bool bloqueando = false;
+    int frameAtaque = 0;
+    int frameBloqueo = 0;
+    int frameIdle = 0;    
 
-    sf::Texture texturaDanio;           // Textura del estado de danio
-    bool recibiendoDanio = false;       // Indica si el jugador está recibiendo danio
-    sf::Clock danioClock;               // Reloj para controlar el tiempo de danio
-    float duracionDanio = 0.8f;         // Duración del estado de danio
+    sf::Texture texturaDanio;
+    bool recibiendoDanio = false;
+    sf::Clock danioClock;
+    float duracionDanio = 0.8f;
 
 };

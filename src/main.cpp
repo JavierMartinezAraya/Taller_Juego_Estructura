@@ -73,8 +73,8 @@ int main() {
                     int x = mainMenu.MainMenuPressed();
                     if (x == 0) {
                         // Creacion de los jugadores
-                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png","resources/Ramos_Block-Sheet.png");
-                        jugador2 = std::make_unique<Jugador>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png","resources/Pablo_Block-Sheet.png");
+                        jugador = std::make_unique<Jugador>("resources/Deivid_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Deivid_Attack_L-Sheet.png","resources/Deivid_Danio-Sheet.png","resources/Deivid_Block-Sheet.png");
+                        jugador2 = std::make_unique<Jugador>("resources/Paulo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Paulo_Attack_L-Sheet.png","resources/Paulo_Danio-Sheet.png","resources/Paulo_Block-Sheet.png");
                         // Se modifica el tamaño de los sprites
                         jugador->getSprite().setScale(0.65f, 0.65f);
                         jugador2->getSprite().setScale(0.65f, 0.65f);
@@ -82,8 +82,8 @@ int main() {
                     }
                     if (x == 1) {
                         // Creacion de los jugadores
-                        jugador = std::make_unique<Jugador>("resources/Ramos_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Ramos_Attack_L-Sheet.png","resources/Ramos_Danio-Sheet.png","resources/Ramos_Block-Sheet.png");// falta implementar bloqueo
-                        jugadorIA = std::make_unique<JugadorIA>("resources/Pablo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Pablo_Attack_L-Sheet.png","resources/Pablo_Danio-Sheet.png");// falta implementar bloqueo
+                        jugador = std::make_unique<Jugador>("resources/Deivid_Idle-Sheet.png", sf::Vector2f(300.0f, 600.0f),"resources/Deivid_Attack_L-Sheet.png","resources/Deivid_Danio-Sheet.png","resources/Deivid_Block-Sheet.png");// falta implementar bloqueo
+                        jugadorIA = std::make_unique<JugadorIA>("resources/Paulo_Idle-Sheet.png", sf::Vector2f(900.0f, 600.0f), "resources/Paulo_Attack_L-Sheet.png","resources/Paulo_Danio-Sheet.png","resources/Paulo_Block-Sheet.png");// falta implementar bloqueo
                         // Se modifica el tamaño de los sprites
                         jugador->getSprite().setScale(0.65f, 0.65f);
                         jugadorIA->getSprite().setScale(0.65f, 0.65f);
@@ -396,7 +396,7 @@ int main() {
                             case JugadorIA::MOVER_IZQ: jugadorIA->moverIzquierda(); break;
                             case JugadorIA::MOVER_DER: jugadorIA->moverDerecha(); break;
                             case JugadorIA::ATACAR: jugadorIA->atacar(); break;
-                            case JugadorIA::BLOQUEAR: /* implementar bloqueo */ break;
+                            case JugadorIA::BLOQUEAR: jugadorIA->bloquear(); break;
                         }
                         faseRonda = FaseRonda::TURNO_J1;
                     }
